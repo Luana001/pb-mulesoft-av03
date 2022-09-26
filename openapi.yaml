@@ -1,0 +1,371 @@
+openapi: 3.0.3
+info: 
+  title: API - pb-mulesoft-av03
+  description: API para vizualização de informações sobre estados e controle dos dados pelos usuários.
+  version: 0.0.1
+  contact:
+    name: Suporte 
+    email: contato@email.com
+servers: 
+- url: http://localhost:8080/api/v1
+  description: API de gerenciamento de estados
+  
+tags:
+  - name: estados
+    description: Vizualização e controle dos dados sobre estados 
+  - name: usuarios
+    description: Vizualização e controle dos dados sobre usuarios
+  - name: autenticacao
+    description: Permite a autenticacao por JWT 
+
+paths:
+  /autenticacao:
+    post:
+      tags: 
+        - autenticacao
+      summary: Autentica usuario para habilitar outras ações 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  default: ""
+                senha:
+                  type: string
+                  default: ""
+      responses: 
+        '200':
+          description: Autenticação realizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  tipo:
+                    type: string
+        '400':
+          description: Usuario não exite na base de dados
+          content:
+            application/json:
+              example: Dados inválidos
+              
+  /estados:
+    get:
+      tags: 
+        - estados
+      summary: Busca por todos os estados cadastrados
+      parameters:
+        - in: query
+          name: regiao
+          schema:
+            type: string
+            enum: ["Norte", "Nordeste", "Sul", "Sudeste", "Centro_Oeste"]
+          description: Traz lista dos estados de uma determinada regiao
+            
+        - in: query
+          name: filtro
+          schema:
+            type: string
+            enum: ["id", "nome", "regiao", "populacao", "capital", "area"]
+          description: Traz lista dos estados filtrados por atributo
+      description: Busca todos os estado cadastrado, permitindo filtro por deteminada regiao e/ou ordenação por algum de seus atributos.
+      responses:
+        '200':
+          description: Consulta realizada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/estados"
+        '404':
+          description: Não foi possível encontrar estados com um ou mais paramêtros descritos
+          application/json:
+              example: Not Found 
+  
+    post:
+      tags: 
+        - estados
+      summary: Cadastra um novo estado
+      security: 
+      - auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  default: ""
+                regiao:
+                  type: string
+                  enum: ["Norte", "Nordeste", "Sul", "Sudeste", "Centro_Oeste"]
+                populacao:
+                  type: integer
+                  format: int64
+                  default: 0
+                  minimum: 1
+                capital:
+                  type: string
+                  default: ""
+                area:
+                  type: integer
+                  format: float
+                  default: 0
+                  minimum: 1
+      responses:
+        '201':
+          description: Cadastro realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/usuarios"
+        '400':
+          description: Um ou mais campos estão inválidos, retorna os campos e quais foram os erros  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "campo": "nome", "erro": "não deve estar nulo"
+  /estados/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+    get:
+      tags: 
+        - estados
+      summary: Recupera um estado especifico pelo ID.
+      responses:
+        '200':
+          description: Estado encontrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/estados"
+        '404':
+          description: Estado não encontrado
+          content:
+            application/json:
+              example: Not Found 
+  
+    put:
+      tags: 
+        - Estados
+      summary: Atualiza um estado especifico pelo ID
+      security: 
+      - auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  default: ""
+                regiao:
+                  type: string
+                  enum: ["Norte", "Nordes", "Sul", "Sudeste", "Centro_Oeste"]
+                populacao:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  default: 0
+                capital:
+                  type: string
+                  default: ""
+                area:
+                  type: integer
+                  format: float
+                  minimum: 1
+                  default: 0
+      responses:
+        '200':
+          description: Estado atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/estados"
+        '404':
+          description: Estado não encontrado
+          content:
+            application/json:
+              example: Not Found.
+        '400':
+          description: Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
+          content:
+            application/json:
+              example: "campo": "nome", "erro": "não deve estar nulo"
+    delete:
+      tags: 
+        - estados
+      summary: Remove um estado especifico pelo ID
+      security: 
+      - auth: []
+      responses:
+        '200':
+          description: Estado removido com sucesso
+          content:
+            application/json:
+              example: Ok
+        '404':
+          description: Estado não encontrado
+          content:
+            application/json:
+              example: Not Found
+              
+  /usuarios:
+    get:
+      tags: 
+        - usuarios
+      summary: Busca por todos os usuarios cadastrados
+      responses:
+        '200':
+          description: Consulta realizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    senha:
+                      type: string            
+    post:
+      tags: 
+        - usuarios
+      summary: Cadastra um novo usuario
+      security: 
+      - auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  default: ""
+                email:
+                  type: string
+                  default: ""
+                senha:
+                  type: string
+                  default: "" 
+      responses:
+        '201':
+          description: Cadastro realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/usuarios"
+        '400':
+          description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "campo": "nome", "erro": "o comprimento deve ser entre 5 e 2147483647"
+  /usuarios/{id}:
+    put:
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+      tags: 
+        - usuarios
+      summary: Atualiza um usuario especifico pelo ID
+      security: 
+      - auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  default: ""
+                email:
+                  type: string
+                  default: ""
+                senha:
+                  type: string
+                  default: "" 
+      responses:
+        '200':
+          description: Usuario atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/usuarios"
+        '404':
+          description: Usuario não encontrado
+          content:
+            application/json:
+              example: Not Found
+        '400':
+          description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
+          content:
+            application/json:
+              example: "campo": "nome", "erro": "o comprimento deve ser entre 5 e 2147483647"          
+  components:
+  schemas:
+    estados:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          nome:
+            type: string
+          regiao:
+            type: string
+          populacao:
+            type: integer
+            format: int64
+          capital:
+            type: string
+          area:
+            type: integer
+            format: double
+    usuarios:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          nome:
+            type: string
+          email:
+            type: string
+          senha:
+            type: string
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  
