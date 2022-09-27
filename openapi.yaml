@@ -83,7 +83,8 @@ paths:
                 $ref: "#/components/schemas/estados"
         '404':
           description: Não foi possível encontrar estados com um ou mais paramêtros descritos
-          application/json:
+          content:
+            application/json:
               example: Not Found 
   
     post:
@@ -125,14 +126,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/usuarios"
         '400':
-          description: Um ou mais campos estão inválidos, retorna os campos e quais foram os erros  
+          description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: string
-                  example: "campo": "nome", "erro": "não deve estar nulo"
+                  type: object
+                  properties: 
+                    campo: 
+                      type: string
+                      default: ""
+                    erro:
+                      type: string
+                      default: ""  
   /estados/{id}:
     parameters:
       - name: id
@@ -159,7 +166,7 @@ paths:
   
     put:
       tags: 
-        - Estados
+        - estados
       summary: Atualiza um estado especifico pelo ID
       security: 
       - auth: []
@@ -201,10 +208,20 @@ paths:
             application/json:
               example: Not Found.
         '400':
-          description: Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
+          description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
           content:
             application/json:
-              example: "campo": "nome", "erro": "não deve estar nulo"
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    campo: 
+                      type: string
+                      default: ""
+                    erro:
+                      type: string
+                      default: ""  
     delete:
       tags: 
         - estados
@@ -281,8 +298,14 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
-                  example: "campo": "nome", "erro": "o comprimento deve ser entre 5 e 2147483647"
+                  type: object
+                  properties: 
+                    campo: 
+                      type: string
+                      default: ""
+                    erro:
+                      type: string
+                      default: ""  
   /usuarios/{id}:
     put:
       parameters:
@@ -327,8 +350,18 @@ paths:
           description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
           content:
             application/json:
-              example: "campo": "nome", "erro": "o comprimento deve ser entre 5 e 2147483647"          
-  components:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    campo: 
+                      type: string
+                      default: ""
+                    erro:
+                      type: string
+                      default: ""            
+components:
   schemas:
     estados:
       type: array
