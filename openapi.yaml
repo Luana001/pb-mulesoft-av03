@@ -124,7 +124,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/usuarios"
+                $ref: "#/components/schemas/estados"
         '400':
           description:  Um ou mais campos estão inválidos, retorna os campos e quais foram os erros
           content:
